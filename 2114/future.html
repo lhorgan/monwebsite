@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>2113</title>
+
+<link href='http://fonts.googleapis.com/css?family=Contrail+One' rel='stylesheet' type='text/css'>
+
+<style>
+/*#wheel
+{
+	transform:rotate(180deg);
+	-ms-transform:rotate(180deg); 
+	-webkit-transform:rotate(180deg);
+}*/
+
+body
+{
+	background-color:#000000;
+	background-image:url(bg2.png);
+}
+
+#vid
+{
+	position:fixed;
+	z-index:5;
+	width:100%;
+	height:100%;
+	display:none;
+}
+
+#spinny
+{
+	display:none;
+}
+
+#circle
+{
+	position:fixed;
+	z-index:513;
+    background-color:rgba(255, 255, 255,0.5);
+    border-radius:100%;
+    text-align:center;
+    line-height:80px;
+	font-family: 'Contrail One', cursive;
+}
+
+span
+{
+	line-height: normal;
+    display:inline-block;
+    vertical-align: middle;
+	padding:15%;
+	overflow:hidden;
+}
+
+span
+{
+	/*display:none;*/
+}
+</style>
+
+</head>
+
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+
+<script>
+$( window ).resize(function() {
+	resizeIt();
+});
+
+function height(h)
+{
+	$('body').css('height', h);
+	pageHeight = h;
+}
+
+var gDiam = 1;
+function resizeIt()
+{
+	$(".spin").css("position", "fixed");
+	$(".spin").css("height", $(window).height());
+	$(".spin").css("width", $(window).height());
+	var center = $(window).width() / 2;
+	var width = $(window).height();
+	var pos = center - (width / 2);
+	$(".spin").css("left", pos);
+	
+	var diameter = parseInt(width / 2.18);
+	gDiam = diameter;
+	var cPos = center - (diameter / 2);
+	var centerH = $(window).height() / 2;
+	var cPosH = centerH - (diameter / 2);
+	$("#circle").css("left", cPos);
+	$("#circle").css("top", cPosH);
+	$("#circle").css("width", diameter);
+	$("#circle").css("height", diameter);
+}
+
+var triggered = false;
+var triggered2 = false;
+function fadeOut()
+{
+	var vid = document.getElementById("record");
+	if(vid.currentTime >= 16 && triggered == false)
+	{
+		$("#vid").fadeOut(4000);
+		triggered = true;
+	}
+	if(vid.currentTime >= 18 && triggered2 == false)
+	{
+		$("#spinny").fadeIn(8000);
+		triggered2 = true;
+		height(10000);
+	}
+}
+
+var amount = 0;
+function rotateIt(deg)
+{
+	if(deg >= 360)
+	{
+		deg = 0;
+	}
+	if(deg < 0)
+	{
+		deg = 0;
+	}
+	amount = deg;
+	$("#wheel").css("transform", "rotate(" + deg + "deg" + ")");
+	$("#wheel").css("-ms-transform", "rotate(" + deg + "deg" + ")");
+	$("#wheel").css("-webkit-transform", "rotate(" + deg + "deg" + ")");
+}
+
+var paraPos = [ 1152, 2376, 3564, 4752, 5963, 7152, 8363, 9575 ];
+
+function update()
+{
+	var pos = $(window).scrollTop();
+	var posBottom = $(window).scrollTop() + $(window).height();
+	var scrollHeight = posBottom - pos;
+	var toRot = (pos / (10000 - scrollHeight)) * 360;
+	toRot = 360 - toRot; // this changes the direction
+	rotateIt(parseInt(toRot));
+	//console.log("pos " + pos);
+	
+	var paraNumber = 0;
+	for(var i = 0; i < paraPos.length; i++)
+	{
+		if(pos < paraPos[i])
+		{
+			paraNumber = i;
+			break;
+		}
+	}
+	//console.log("#" + paraNumber);
+	for(var i = 0; i < 7; i++)
+	{
+		var p = "#text" + i;
+		$(p).hide();
+	}
+	
+	var p = "#text" + paraNumber;
+	$(p).show();
+	$(p).css("font-size", 20);
+	var fontSize = parseInt($(p).css("font-size"));
+	var ratio = $(p).height() / gDiam;
+	while(ratio >= 0.79 && fontSize >= 0)
+	{
+		fontSize -= 0.5;
+		$(p).css("font-size", fontSize);
+		ratio = $(p).height() / gDiam;
+	}
+}
+</script>
+
+<body>
+
+<script>
+$(window).load(function() {
+	$("#vid").show();
+	$("#loading").hide();
+	document.getElementById("record").play();
+	document.getElementById("music").play();
+});
+</script>
+
+<div align="center" style="color:#FF0000" id="loading">
+LOADING, PLEASE BE PATIENT.  DON'T KILL YOURSELF.  YOUR CONTENT WILL BE DELIVERED SHORTLY!
+</div>
+
+<div id="vid" align="center">
+<video src="record3.ogv" width="102%" height="100%" id="record" />
+</div>
+
+<div align="center" id="spinny">
+<div id="circle">
+<span id="text0" width="90%" height="90%">
+<img src="starBilling.png" width="100%" height="100%"/>
+</span>
+<span id="text1">
+The year is 2113.  These days, everything that can be digitized has been digitized.  That “Internet of Things” we’ve been hearing so much about has been a reality for decades: every last device on Earth has been connected a vast information superhighway. Just keep watching to see how the old will fit in with the new in the city of Paris as it will appear in one century. 
+</span>
+<span id="text2">
+Eva’s journey takes her through the heart of the city, a very colorful place.  Houses are no longer the boring two-tone cubes they are today.  Ultra-thin monitors replace siding and shingles, allowing buildings to assume any number of hues and patterns.  The shifting color scheme might confuse a human driver, but driving is an activity with which few humans bother in 2113.  These days, cars are fully automated, and, like most of the city, they run on solar power generated by panels that have been programmed to follow the sun.
+</span>
+<span id="text3">
+Now, Eva is in school where new information systems are used everywhere. Right now our student is computing a math problem on her interactive desk. Long gone are the days of paper and pencil; this desk is a touchscreen and allows Eva to use her fingers to solve the problems rather than a pencil. When teachers cannot attend school, they are able to teach the class without having to leave home. Through a holographic system, they are projected into the classroom as if they were really in the room. Similarly, each classroom is designed to have walls made of touch screen apparatus. One can easily solve math equations on a word program as well as do research on the huge interactive surface. 
+</span>
+<span id="text4">
+After school, Eva arrives at the town park and enters a field. There she goes up to the iSport, which will transform the field into anything from a basketball court to a swimming pool. If Eva wishes to play a sport, but does not have an opponent, she can configure the settings to allow holographic people to play against her. Eva’s going to ice skate today, so the field transforms into a skating rink and a pair of ice skates appear by the side of the machine. 
+</span>
+<span id="text5">
+Unfortunately, Eva doesn’t go to space today, but she could if she wanted to.  Powerful quantum computers have made extremely complex physics simulations possible.  Coupled with molecular 3D printers and some very talented engineers, this advance has made it possible to manufacture space elevators.  In 2113, adventurous space tourists frequently visit fully autonomous space stations to gain a new perspective on our ever smaller blue marble.
+</span>
+<span id="text6">
+Looking at the city from afar, it is plain to see that the world hardly resembles the place it used to be.  Once a city of stone and torches, the Paris of the 22nd century is a metropolis of carbon fibers and holographic imagery.  For all that has happened, though, at least one familiar landmark remains.  Life probably isn’t perfect for Eva, but 2113 is certainly an exciting time to be living.  Even if only because her ocular implants are set to project a pink overlay, tomorrow’s technology is giving Eva (and humanity) a chance to live la vie en rose.
+</span>
+</div>
+<img src="lespin.png" class="spin" id="wheel" />
+<img src="leearth.png" class="spin" />
+</div>
+
+<audio src="rose.mp3" id="music"></audio>
+
+<script>
+//height(10000);
+resizeIt();
+setInterval(update, 1);
+var fadeInt = setInterval(fadeOut, 20);
+</script>
+
+</body>
+</html>

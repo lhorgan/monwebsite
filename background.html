@@ -1,0 +1,260 @@
+<head>
+<title>Luke Horgan</title>
+
+<style>
+body
+{
+}
+
+.atom
+{
+	width:5px;
+	height:5px;
+	border-collapse:collapse;
+}
+
+#bg
+{
+	position:fixed;
+	top:0px;
+	z-index:-1;
+	overflow:hidden;
+}
+
+#bgSwap
+{
+	position:fixed;
+	top:0px;
+	z-index:-2;
+	overflow:hidden;
+}
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<script>
+var N = 60;
+var S = 50;
+var board = new Array(N);
+var swapBoard = new Array(N);
+
+window.addEventListener("resize", setCanvasSize);
+function setCanvasSize()
+{
+	$("#bg").attr("height", 0);
+	$("#bgSwap").attr("height", 0);
+	
+	$("#bg").attr("width", $(window).width());
+	$("#bg").attr("height", $(document).height());
+	$("#bgSwap").attr("width", $(window).width());
+	$("#bgSwap").attr("height", $(document).height());
+	var dim = Math.max($(window).width(), $(document).height());
+	S = Math.floor(dim / N) + 1;
+}
+
+function initGrid()
+{
+	for(var i = 0; i < N; i++)
+	{
+		board[i] = new Array(N);
+		swapBoard = new Array(N);
+	}
+	
+	for(var i = 0; i < N; i++)
+	{
+		for(var j = 0; j < N; j++)
+		{
+			var rand = Math.random();
+			if(rand < 0.01)
+				board[i][j] = true;
+			else
+				board[i][j] = false;
+		}
+	}
+	
+	setCanvasSize();
+}
+
+function drawBoard(alpha, b, cvs)
+{
+	var c = document.getElementById(cvs);
+	var ctx = c.getContext("2d");
+	
+	if(alpha === null)
+	{
+		alpha = 0;
+	}
+	
+	/*var r = 200 + Math.floor((Math.random() * 55));
+	var g = 200 + Math.floor((Math.random() * 55));
+	var b = 200 + Math.floor((Math.random() * 55));
+	var color = r + "," + g + "," + b;*/
+	//ctx.fillStyle = rgb(r,g,b);
+	
+	ctx.fillStyle = "#99ffff";
+	ctx.globalAlpha = alpha;
+	
+	ctx.clearRect(0, 0, c.width, c.height);
+	
+	var x = 0;
+	var y = 0;
+	for(var i = 0; i < N; i++)
+	{
+		x = 0;
+		for(var j = 0; j < N; j++)
+		{
+			if(b[i][j]) 
+			{
+				ctx.fillStyle = "#99ffff";
+				ctx.fillRect(x, y, S, S);
+			}
+			else
+			{
+				ctx.fillStyle = "#ccffff";
+				ctx.fillRect(x, y, S, S);
+			}
+			x += S;
+		}
+		y += S;	
+	}
+}
+
+function drawRect()
+{
+	var c = document.getElementById("bg");
+	var ctx = c.getContext("2d");
+	var r = 200 + Math.floor((Math.random() * 55));
+	var g = 200 + Math.floor((Math.random() * 55));
+	var b = 200 + Math.floor((Math.random() * 55));
+	ctx.fillStyle = rgb(r,g,b);
+	ctx.fillRect(0,0,500,500);
+}
+
+function getNextStage()
+{
+	var updatedStage = new Array(N);
+	for(var i = 0; i < N; i++)
+	{
+		updatedStage[i] = new Array(N);
+	}
+	
+	for(var i = 0; i < N; i++)
+	{
+		for(var j = 0; j < N; j++)
+		{
+			updatedStage[i][j] = false;
+			var num = neighborNum(i, j);
+			if(num == 2 || num == 3)
+				updatedStage[i][j] = true;
+		}
+	}
+	
+	/*swapBoard = board;
+	board = updatedStage;*/
+	return updatedStage;
+}
+
+function neighborNum(r, c)
+{
+	var num = 0;
+	
+	for(var rx = -1; rx <= 1; rx++)
+	{
+		row = mod(r + rx, N);
+		for(var cx = -1; cx <= 1; cx++)
+		{
+			col = mod(c + cx, N);
+			if(!(row == r && col == N) && board[row][col])
+			{
+				num++;
+			}
+		}
+	}
+	
+	return num;	
+}
+
+function mod(n, m)
+{
+	if(n >= 0)
+	{
+		return n % m;
+	}
+	return m + (n % m);
+}
+
+var fps = 60;
+var dur = 1000 / fps;
+var prevFrameTime = Date.now();
+
+var frameNum = 1;
+var alpha = 100;
+var dAlpha = -5;
+var cc = "bg";
+function swapCanvas()
+{
+	if(cc == "bg")
+	{
+		cc = "bgSwap";
+	}
+	else
+	{
+		cc = "bg";
+	}
+	
+	return cc;
+}
+
+function mainCanvas()
+{
+	return cc;
+}
+
+function altCanvas()
+{
+	if(cc == "bg")
+		return "bgSwap";
+	else
+		return "bg";
+}
+function animateConway()
+{
+	requestAnimationFrame(animateConway);
+	
+	drawBoard(alpha / 100, board, "bg");
+	
+	if(alpha == 0)
+	{
+		var nextBoard = getNextStage();
+		board = nextBoard;
+	}
+	else if(alpha == 100)
+	{
+		var nextBoard = getNextStage();
+		drawBoard(1, nextBoard, "bgSwap");
+	}
+	
+	if(alpha == 0)
+	{
+		alpha = 100 - dAlpha;
+	}
+	
+	alpha += dAlpha;
+}
+</script>
+
+</head>
+
+<body>
+
+<div id="conway"></div>
+
+<canvas id="bg"></canvas>
+<canvas id="bgSwap"></canvas>
+
+<script>
+initGrid();
+animateConway();
+</script>
+</body>
+</html>

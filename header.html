@@ -1,0 +1,191 @@
+<link href='https://fonts.googleapis.com/css?family=Teko' rel='stylesheet' type='text/css'>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<style>
+body
+{
+	margin:0px;
+	padding:0px;
+}
+
+.header
+{
+	position:fixed;
+	width:100%;
+	height:50px;
+	background-color:#006666;
+}
+
+.headerTable
+{
+	width:100%;
+	height:100%;
+	border-collapse:collapse;
+	text-align:center;
+	vertical-align:middle;
+	color:#FFFFFF;
+	font-family: 'Teko', sans-serif;
+	font-size:30px;
+}
+
+td > a
+{
+	color:#FFFFFF;
+}
+
+/* visited link */
+a:link
+{
+	text-decoration:none;
+}
+
+a:visited
+{
+	color:#FFFFFF;
+}
+
+/* mouse over link */
+a:hover
+{
+	color:#CCCCCC;
+	text-decoration:underline;
+}
+
+img
+{
+	max-width:100%;
+}
+
+#sigAnim
+{
+	max-width:100%;
+	max-height:100%;
+}
+
+canvas
+{
+	border:0px;
+	padding:0px;
+}
+</style>
+
+<script>
+window.onload = function() 
+{
+    var c=document.getElementById("sigMeta");
+    var ctx=c.getContext("2d");
+    var img=document.getElementById("sigMetaPic");
+    ctx.drawImage(img, 0, 0);
+	generateSig();
+	
+	$("#sigAnim").attr("width", 122);
+	$("#sigAnim").attr("height", 46);
+	
+	prevFrameTime = Date.now();
+	sigAnimCVS = document.getElementById("sigAnim");
+	sigAnimCTX = sigAnimCVS.getContext("2d");
+	
+	sigAnimCTX.lineWidth = 2;
+    sigAnimCTX.strokeStyle = '#ffffff';
+	
+	animateSig();
+};
+
+var sigArray = new Array();
+
+function Point(x, y, color)
+{
+	this.x = x;
+	this.y = y;
+	this.color = color;
+}
+
+function Color(r, g, b)
+{
+	this.r = r;
+	this.g = g;
+	this.b = b;
+}
+
+function generateSig()
+{
+	var c=document.getElementById("sigMeta");
+    var ctx=c.getContext("2d");
+	
+	var imgData = ctx.getImageData(0, 0, c.width, c.height);
+	var pixels = imgData.data;
+
+	for(var x = 0; x < c.width; x++) 
+	{
+		for(var y = 0; y < c.height; y++)
+		{
+			var ind = (y * c.width + x) * 4;
+			if(pixels[ind + 3] != 0)
+			{
+				sigArray.push(new Point(x, y, new Color(pixels[ind], pixels[ind + 1], pixels[ind + 2])));
+			}
+		}
+	}
+	sigArray.sort(compareColors);
+	console.log(sigArray);
+}
+
+function compareColors(a, b)
+{
+	a = a.color;
+	b = b.color;
+	var aVal = a.b * 255 * 255 + a.g * 255 + a.r;
+	var bVal = b.b * 255 * 255 + b.g * 255 + b.r;
+	
+	return aVal - bVal;
+}
+
+var fps = 60;
+var dur = 1000 / fps;
+var prevFrameTime = Date.now();
+var sigIndex = 0;
+var sigAnimCVS;
+var sigAnimCTX;
+function animateSig()
+{
+	if(sigIndex < sigArray.length - 1)
+		requestAnimationFrame(animateSig);
+	else
+		return;
+
+	var currentFrameTime = Date.now();
+	//console.log(currentFrameTime);
+	if(currentFrameTime - prevFrameTime >= dur)
+	{
+		sigAnimCTX.beginPath();
+     	sigAnimCTX.moveTo(sigArray[sigIndex].x, sigArray[sigIndex].y);
+     	sigAnimCTX.lineTo(sigArray[sigIndex + 1].x, sigArray[sigIndex + 1].y);
+     	sigAnimCTX.stroke();
+		sigIndex++;
+		prevFrameTime = Date.now();
+	}
+}
+
+</script>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<img src="static/sig_meta.png" id="sigMetaPic" style="display:none" />
+<canvas id="sigMeta" style="display:none"></canvas>
+
+<table class="headerTable">
+    <tr>
+    	<td style="width:16%"><canvas id="sigAnim"></canvas></td>
+    	<td style="width:17%"><a href="index.php">home</a></td>
+      <td style="width:17%"><a href="projects.php">projects</a></td>
+      <td style="width:17%"><a href="https://github.com/lhorgan" target="_blank">github</a></td>
+      <td style="width:17%"><a href="resume.pdf" target="_blank">resume</a></td>
+      <td style="width:16%"></td>
+    </tr>
+</table>
+</div>
